@@ -1,0 +1,11 @@
+[package]
+name = "wisp"
+version = "0.1.0"
+authors = ["raznov"]
+edition = "2018"
+
+[dependencies]
+reqwest = "0.10"
+async-trait = "0.1.42"
+tokio = { version = "0.2", features = ["full"] }
+dirs = "3.0.1"
