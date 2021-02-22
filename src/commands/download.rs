@@ -16,9 +16,10 @@
 //  along with Wisp.  If not, see <https://www.gnu.org/licenses/>.
 
 use std::fs::File;
-use std::io::copy;
+use std::io::Write;
 
 use async_trait::async_trait;
+use zip::write::FileOptions;
 
 use crate::controllers::app::App;
 use crate::controllers::command_parser::{Args, Command, CommandTrait, Flag, Flags, get_flag_arg};
@@ -60,14 +61,21 @@ impl CommandTrait for DownloadCommand {
                     if res.status() == reqwest::StatusCode::OK {
                         println!("Malware found from {} api", api_src.to_string());
 
-                        let file_name = get_flag_arg(&flags, "-o")
-                            .unwrap_or(String::from("out.bin"));
+                        let zip_path = get_flag_arg(&flags, "-o")
+                            .unwrap_or(String::from("out.zip"));
 
-                        let mut out = File::create(file_name)
-                            .expect("Failed to create file!");
+                        let zip_file = File::create(zip_path)
+                            .expect("Failed to create zip file");
 
-                        copy(&mut res.bytes().await.unwrap().as_ref(), &mut out)
-                            .expect("Failed to copy content!");
+                        let mut zip = zip::ZipWriter::new(zip_file);
+                        let options = FileOptions::default();
+
+                        zip.start_file(&args[0], options)
+                            .unwrap();
+                        zip.write_all(&res.bytes().await.unwrap())
+                            .expect("Failed to write to zip file");
+                        zip.finish()
+                            .unwrap();
 
                         return;
                     }

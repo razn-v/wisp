@@ -9,3 +9,4 @@ reqwest = "0.10"
 async-trait = "0.1.42"
 tokio = { version = "0.2", features = ["full"] }
 dirs = "3.0.1"
+zip = { version = "0.5", default-features = false, features = ["deflate"] }
